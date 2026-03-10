@@ -8,9 +8,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Field, FieldGroup } from '@/components/ui/field'
+import { Field } from '@/components/ui/field'
 import { Spinner } from '@/components/ui/spinner'
-import { HabitIcon, iconMap } from '@/components/habit-icon'
+import { HabitIcon } from '@/components/habit-icon'
+import { useLanguage } from '@/components/language-provider'
 import { HABIT_ICONS, HABIT_COLORS } from '@/lib/types'
 import { getColorClass } from '@/lib/habits'
 import { cn } from '@/lib/utils'
@@ -24,12 +25,13 @@ export default function NewHabitPage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+  const { t } = useLanguage()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     
     if (!name.trim()) {
-      toast.error('Please enter a habit name')
+      toast.error(t.enterHabitName)
       return
     }
 
@@ -38,7 +40,7 @@ export default function NewHabitPage() {
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {
-      toast.error('You must be logged in')
+      toast.error(t.mustBeLoggedIn)
       setIsLoading(false)
       return
     }
@@ -48,17 +50,15 @@ export default function NewHabitPage() {
       name: name.trim(),
       icon: selectedIcon,
       color: selectedColor,
-      frequency: 'daily',
-      target_days: [1, 2, 3, 4, 5, 6, 0], // All days
     })
 
     if (error) {
-      toast.error('Failed to create habit')
+      toast.error(t.failedToCreate)
       setIsLoading(false)
       return
     }
 
-    toast.success('Habit created!')
+    toast.success(t.habitCreated)
     router.push('/dashboard')
     router.refresh()
   }
@@ -71,23 +71,23 @@ export default function NewHabitPage() {
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back
+          {t.back}
         </Link>
       </div>
 
       <Card className="border-0 shadow-xl shadow-primary/5">
         <CardHeader>
-          <CardTitle className="text-xl">Create New Habit</CardTitle>
+          <CardTitle className="text-xl">{t.createNewHabit}</CardTitle>
         </CardHeader>
         
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <Field>
-              <Label htmlFor="name">Habit Name</Label>
+              <Label htmlFor="name">{t.habitName}</Label>
               <Input
                 id="name"
                 type="text"
-                placeholder="e.g., Morning meditation"
+                placeholder={t.habitNamePlaceholder}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -96,7 +96,7 @@ export default function NewHabitPage() {
             </Field>
 
             <Field>
-              <Label>Icon</Label>
+              <Label>{t.icon}</Label>
               <div className="grid grid-cols-6 gap-2 mt-2">
                 {HABIT_ICONS.map((icon) => (
                   <button
@@ -118,7 +118,7 @@ export default function NewHabitPage() {
             </Field>
 
             <Field>
-              <Label>Color</Label>
+              <Label>{t.color}</Label>
               <div className="flex gap-2 mt-2">
                 {HABIT_COLORS.map((color) => (
                   <button
@@ -144,7 +144,7 @@ export default function NewHabitPage() {
 
             {/* Preview */}
             <div className="pt-4 border-t border-border">
-              <Label className="text-muted-foreground">Preview</Label>
+              <Label className="text-muted-foreground">{t.preview}</Label>
               <div className="mt-3 flex items-center gap-4 p-4 rounded-2xl bg-secondary/50">
                 <div className={cn(
                   'w-12 h-12 rounded-xl flex items-center justify-center',
@@ -166,10 +166,10 @@ export default function NewHabitPage() {
               {isLoading ? (
                 <>
                   <Spinner className="mr-2" />
-                  Creating...
+                  {t.creating}
                 </>
               ) : (
-                'Create Habit'
+                t.createHabit
               )}
             </Button>
           </form>

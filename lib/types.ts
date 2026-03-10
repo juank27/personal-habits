@@ -4,8 +4,6 @@ export interface Habit {
   name: string
   icon: string
   color: string
-  frequency: 'daily' | 'weekly'
-  target_days: number[]
   created_at: string
 }
 

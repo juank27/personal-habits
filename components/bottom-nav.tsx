@@ -3,19 +3,21 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, BarChart3, User } from 'lucide-react'
+import { useLanguage } from '@/components/language-provider'
 import { cn } from '@/lib/utils'
-
-const navItems = [
-  { href: '/dashboard', icon: Home, label: 'Today' },
-  { href: '/dashboard/stats', icon: BarChart3, label: 'Stats' },
-  { href: '/dashboard/profile', icon: User, label: 'Profile' },
-]
 
 export function BottomNav() {
   const pathname = usePathname()
+  const { t } = useLanguage()
+
+  const navItems = [
+    { href: '/dashboard', icon: Home, label: t.today },
+    { href: '/dashboard/stats', icon: BarChart3, label: t.stats },
+    { href: '/dashboard/profile', icon: User, label: t.profile },
+  ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-lg border-t border-border/50 safe-area-inset-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-lg border-t border-border/50 safe-area-inset-bottom z-50">
       <div className="flex items-center justify-around max-w-lg mx-auto py-2">
         {navItems.map((item) => {
           const isActive = pathname === item.href

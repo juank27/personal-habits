@@ -1,13 +1,19 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
+import { LanguageProvider } from '@/components/language-provider'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
-const inter = Inter({ 
+const plusJakarta = Plus_Jakarta_Sans({ 
   subsets: ["latin"],
-  variable: '--font-inter',
+  variable: '--font-plus-jakarta',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: '--font-jetbrains',
 });
 
 export const metadata: Metadata = {
@@ -33,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={inter.variable}>
+    <html lang="en" suppressHydrationWarning className={`${plusJakarta.variable} ${jetbrainsMono.variable}`}>
       <body className="font-sans antialiased min-h-screen bg-background">
         <ThemeProvider
           attribute="class"
@@ -41,8 +47,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster position="top-center" richColors />
+          <LanguageProvider>
+            {children}
+            <Toaster position="top-center" richColors />
+          </LanguageProvider>
         </ThemeProvider>
         <Analytics />
       </body>
