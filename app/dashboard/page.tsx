@@ -11,7 +11,15 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) return null
+  if (!user) {
+    // This should not happen as the middleware should redirect
+    // But as a fallback, show something
+    return (
+      <main className="max-w-lg mx-auto px-4 pt-6">
+        <p className="text-muted-foreground">Loading...</p>
+      </main>
+    )
+  }
 
   // Fetch habits
   const { data: habits } = await supabase

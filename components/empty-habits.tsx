@@ -1,26 +1,26 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Empty, EmptyIcon, EmptyTitle, EmptyDescription, EmptyActions } from '@/components/ui/empty'
+import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from '@/components/ui/empty'
 import { Sparkles, Plus } from 'lucide-react'
 
 export function EmptyHabits() {
   return (
-    <Empty className="py-12">
-      <EmptyIcon>
-        <Sparkles className="h-10 w-10" />
-      </EmptyIcon>
+    <Empty className="py-12 border-0">
+      <EmptyMedia variant="icon">
+        <Sparkles className="h-6 w-6 text-primary" />
+      </EmptyMedia>
       <EmptyTitle>No habits yet</EmptyTitle>
       <EmptyDescription>
         Create your first habit to start building better routines.
       </EmptyDescription>
-      <EmptyActions>
+      <EmptyContent>
         <Button asChild>
           <Link href="/dashboard/new-habit">
             <Plus className="mr-2 h-4 w-4" />
             Create your first habit
           </Link>
         </Button>
-      </EmptyActions>
+      </EmptyContent>
     </Empty>
   )
 }
