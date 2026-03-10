@@ -59,6 +59,8 @@ interface Translations {
   myHabits: string
   signOut: string
   signingOut: string
+  english: string
+  spanish: string
   
   // Common
   days: string
@@ -121,6 +123,8 @@ const translations: Record<Language, Translations> = {
     myHabits: 'My Habits',
     signOut: 'Sign Out',
     signingOut: 'Signing out...',
+    english: 'English',
+    spanish: 'Spanish',
     
     // Common
     days: 'days',
@@ -181,6 +185,8 @@ const translations: Record<Language, Translations> = {
     myHabits: 'Mis Hábitos',
     signOut: 'Cerrar Sesión',
     signingOut: 'Cerrando sesión...',
+    english: 'Inglés',
+    spanish: 'Español',
     
     // Common
     days: 'días',

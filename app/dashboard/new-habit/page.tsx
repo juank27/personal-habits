@@ -50,6 +50,7 @@ export default function NewHabitPage() {
       name: name.trim(),
       icon: selectedIcon,
       color: selectedColor,
+      frequency: 'daily',
     })
 
     if (error) {

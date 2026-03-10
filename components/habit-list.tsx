@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { HabitIcon } from '@/components/habit-icon'
+import { useLanguage } from '@/components/language-provider'
 import { getColorClass, getColorRingClass, formatDateForDB } from '@/lib/habits'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -15,12 +16,15 @@ interface HabitListProps {
 }
 
 export function HabitList({ habits }: HabitListProps) {
+  const { t } = useLanguage()
+  const completedCount = habits.filter((h) => h.isCompletedToday).length
+  
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Today&apos;s Habits</h2>
+        <h2 className="text-lg font-semibold">{t.todayHabits}</h2>
         <span className="text-sm text-muted-foreground">
-          {habits.filter((h) => h.isCompletedToday).length}/{habits.length} done
+          {completedCount}/{habits.length} {t.done}
         </span>
       </div>
       
@@ -36,6 +40,7 @@ function HabitCard({ habit }: { habit: HabitWithLogs }) {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const supabase = createClient()
+  const { t, language } = useLanguage()
 
   async function toggleHabit() {
     const newState = !isCompleted
@@ -52,11 +57,11 @@ function HabitCard({ habit }: { habit: HabitWithLogs }) {
 
         if (error) {
           setIsCompleted(false)
-          toast.error('Failed to log habit')
+          toast.error(language === 'es' ? 'Error al registrar' : 'Failed to log habit')
           return
         }
 
-        toast.success(`${habit.name} completed!`)
+        toast.success(language === 'es' ? `${habit.name} completado!` : `${habit.name} completed!`)
       } else {
         // Remove today's log
         const today = formatDateForDB(new Date())
@@ -68,7 +73,7 @@ function HabitCard({ habit }: { habit: HabitWithLogs }) {
 
         if (error) {
           setIsCompleted(true)
-          toast.error('Failed to remove log')
+          toast.error(language === 'es' ? 'Error al eliminar' : 'Failed to remove log')
           return
         }
       }
@@ -115,7 +120,7 @@ function HabitCard({ habit }: { habit: HabitWithLogs }) {
           <div className="flex items-center gap-1 mt-1">
             <Flame className="h-3.5 w-3.5 text-orange-500" />
             <span className="text-xs text-muted-foreground">
-              {habit.streak} day streak
+              {habit.streak} {t.dayStreak}
             </span>
           </div>
         )}
