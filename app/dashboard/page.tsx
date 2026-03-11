@@ -1,101 +1,16 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay } from 'date-fns'
-import { createClient } from '@/lib/supabase/client'
-import { processHabitsWithLogs, formatDateForDB } from '@/lib/habits'
+import { createClient } from '@/lib/supabase/server'
+import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns'
+import { processHabitsWithLogs } from '@/lib/habits'
 import { DashboardHeader } from '@/components/dashboard-header'
-import { WeekCalendar } from '@/components/week-calendar'
-import { HabitList } from '@/components/habit-list'
+import { DashboardContent } from '@/components/dashboard-content'
 import { EmptyHabits } from '@/components/empty-habits'
-import type { Habit, HabitLog, HabitWithLogs } from '@/lib/types'
+import type { Habit, HabitLog } from '@/lib/types'
 
-export default function DashboardPage() {
-  const [displayName, setDisplayName] = useState<string>('there')
-  const [weekDays, setWeekDays] = useState<Date[]>([])
-  const [habits, setHabits] = useState<Habit[]>([])
-  const [logs, setLogs] = useState<HabitLog[]>([])
-  const [selectedDate, setSelectedDate] = useState<Date>(() => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    return today
-  })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export default async function DashboardPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  const supabase = createClient()
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true)
-        const { data: { user } } = await supabase.auth.getUser()
-
-        if (!user) {
-          setError('User not found')
-          return
-        }
-
-        // Fetch habits
-        const { data: habitsData, error: habitsError } = await supabase
-          .from('habits')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: true })
-
-        if (habitsError) throw habitsError
-
-        // Fetch logs for the current week
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        const weekStart = startOfWeek(today, { weekStartsOn: 1 })
-        const weekEnd = endOfWeek(today, { weekStartsOn: 1 })
-
-        const { data: logsData, error: logsError } = await supabase
-          .from('habit_logs')
-          .select('*')
-          .eq('user_id', user.id)
-          .gte('completed_at', format(weekStart, 'yyyy-MM-dd'))
-          .lte('completed_at', format(weekEnd, 'yyyy-MM-dd'))
-
-        if (logsError) throw logsError
-
-        // Fetch profile for display name
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('display_name')
-          .eq('id', user.id)
-          .single()
-
-        if (profileError && profileError.code !== 'PGRST116') throw profileError
-
-        const weekDaysArray = eachDayOfInterval({ start: weekStart, end: weekEnd })
-        setDisplayName(profile?.display_name || user.email?.split('@')[0] || 'there')
-        setHabits((habitsData as Habit[]) || [])
-        setLogs((logsData as HabitLog[]) || [])
-        setWeekDays(weekDaysArray)
-      } catch (err) {
-        console.error('[v0] Error loading data:', err)
-        setError('Failed to load habits')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadData()
-  }, [])
-
-  const habitsWithLogs = processHabitsWithLogs(
-    habits,
-    logs
-  ).map((habit) => ({
-    ...habit,
-    isCompletedToday: isSameDay(selectedDate, new Date())
-      ? habit.isCompletedToday
-      : habit.logs.some((log) => isSameDay(new Date(log.completed_at), selectedDate)),
-  }))
-
-  if (loading) {
+  if (!user) {
     return (
       <main className="max-w-lg mx-auto px-4 pt-6">
         <p className="text-muted-foreground">Loading...</p>
@@ -103,30 +18,52 @@ export default function DashboardPage() {
     )
   }
 
-  if (error) {
-    return (
-      <main className="max-w-lg mx-auto px-4 pt-6">
-        <p className="text-muted-foreground">{error}</p>
-      </main>
-    )
-  }
+  // Fetch habits
+  const { data: habits } = await supabase
+    .from('habits')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: true })
+
+  // Fetch logs for the current week
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const weekStart = startOfWeek(today, { weekStartsOn: 1 })
+  const weekEnd = endOfWeek(today, { weekStartsOn: 1 })
+
+  const { data: logs } = await supabase
+    .from('habit_logs')
+    .select('*')
+    .eq('user_id', user.id)
+    .gte('completed_at', format(weekStart, 'yyyy-MM-dd'))
+    .lte('completed_at', format(weekEnd, 'yyyy-MM-dd'))
+
+  // Fetch profile for display name
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('display_name')
+    .eq('id', user.id)
+    .single()
+
+  const habitsWithLogs = processHabitsWithLogs(
+    (habits as Habit[]) || [],
+    (logs as HabitLog[]) || []
+  )
+
+  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd })
+  const displayName = profile?.display_name || user.email?.split('@')[0] || 'there'
 
   return (
     <main className="max-w-lg mx-auto px-4 pt-6">
       <DashboardHeader displayName={displayName} />
-      {weekDays.length > 0 && (
-        <WeekCalendar 
-          days={weekDays} 
-          habits={habitsWithLogs}
-          selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
-        />
-      )}
       
       {habitsWithLogs.length === 0 ? (
         <EmptyHabits />
       ) : (
-        <HabitList habits={habitsWithLogs} selectedDate={selectedDate} />
+        <DashboardContent 
+          habits={habitsWithLogs}
+          weekDays={weekDays}
+        />
       )}
     </main>
   )

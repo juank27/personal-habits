@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { HabitIcon } from '@/components/habit-icon'
@@ -71,8 +71,13 @@ export function StatsContent({
   const { t, language } = useLanguage()
   const { resolvedTheme } = useTheme()
   const [dateRange, setDateRange] = useState<DateRange>('last7Days')
+  const [mounted, setMounted] = useState(false)
 
-  const isDark = resolvedTheme === 'dark'
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const isDark = mounted ? resolvedTheme === 'dark' : false
   const tickColor = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.45)'
   const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'
   const barActive  = isDark ? '#a78bfa' : '#7c3aed'   // primary
