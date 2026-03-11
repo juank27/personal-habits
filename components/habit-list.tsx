@@ -53,17 +53,34 @@ function HabitCard({ habit }: { habit: HabitWithLogs }) {
   async function toggleHabit() {
     const newState = !isCompleted
     setIsCompleted(newState)
+    const today = formatDateForDB(new Date())
 
     startTransition(async () => {
       if (newState) {
-        // Add log
+        // Check if log already exists for today
+        const { data: existingLog } = await supabase
+          .from('habit_logs')
+          .select('id')
+          .eq('habit_id', habit.id)
+          .eq('completed_at', today)
+          .maybeSingle()
+
+        if (existingLog) {
+          // Log already exists, just refresh UI
+          toast.success(language === 'es' ? `${habit.name} completado!` : `${habit.name} completed!`)
+          router.refresh()
+          return
+        }
+
+        // Add new log
         const { error } = await supabase.from('habit_logs').insert({
           habit_id: habit.id,
           user_id: habit.user_id,
-          completed_at: formatDateForDB(new Date()),
+          completed_at: today,
         })
 
         if (error) {
+          console.log('[v0] Insert error:', error)
           setIsCompleted(false)
           toast.error(language === 'es' ? 'Error al registrar' : 'Failed to log habit')
           return
@@ -72,7 +89,6 @@ function HabitCard({ habit }: { habit: HabitWithLogs }) {
         toast.success(language === 'es' ? `${habit.name} completado!` : `${habit.name} completed!`)
       } else {
         // Remove today's log
-        const today = formatDateForDB(new Date())
         const { error } = await supabase
           .from('habit_logs')
           .delete()
@@ -80,6 +96,7 @@ function HabitCard({ habit }: { habit: HabitWithLogs }) {
           .eq('completed_at', today)
 
         if (error) {
+          console.log('[v0] Delete error:', error)
           setIsCompleted(true)
           toast.error(language === 'es' ? 'Error al eliminar' : 'Failed to remove log')
           return
