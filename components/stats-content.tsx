@@ -1,11 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { HabitIcon } from '@/components/habit-icon'
 import { useLanguage } from '@/components/language-provider'
 import { getColorClass } from '@/lib/habits'
 import { cn } from '@/lib/utils'
-import { Flame, Target, Calendar, TrendingUp } from 'lucide-react'
+import { Flame, Target, Calendar, TrendingUp, ChevronDown } from 'lucide-react'
 import {
   BarChart,
   Bar,
@@ -13,9 +14,20 @@ import {
   YAxis,
   ResponsiveContainer,
   Cell,
+  Tooltip,
+  CartesianGrid,
 } from 'recharts'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
 
-interface WeeklyDataPoint {
+type DateRange = 'last7Days' | 'lastWeek' | 'thisMonth'
+
+interface DataPoint {
   date: string
   dayName: string
   dayNameEs: string
@@ -35,7 +47,9 @@ interface HabitStat {
 }
 
 interface StatsContentProps {
-  weeklyData: WeeklyDataPoint[]
+  weeklyData: DataPoint[]
+  lastWeekData: DataPoint[]
+  monthlyData: DataPoint[]
   habitStats: HabitStat[]
   avgCompletionRate: number
   bestStreak: number
@@ -45,6 +59,8 @@ interface StatsContentProps {
 
 export function StatsContent({
   weeklyData,
+  lastWeekData,
+  monthlyData,
   habitStats,
   avgCompletionRate,
   bestStreak,
@@ -52,12 +68,63 @@ export function StatsContent({
   totalHabits,
 }: StatsContentProps) {
   const { t, language } = useLanguage()
+  const [dateRange, setDateRange] = useState<DateRange>('last7Days')
 
-  const chartData = weeklyData.map((d) => ({
-    name: language === 'es' ? d.dayNameEs : d.dayName,
-    value: d.rate,
-    isToday: d.isToday,
-  }))
+  const getChartData = () => {
+    switch (dateRange) {
+      case 'last7Days':
+        return weeklyData.map((d) => ({
+          name: language === 'es' ? d.dayNameEs : d.dayName,
+          fullDate: d.date,
+          value: d.rate,
+          count: d.count,
+          isToday: d.isToday,
+        }))
+      case 'lastWeek':
+        return lastWeekData.map((d) => ({
+          name: language === 'es' ? d.dayNameEs : d.dayName,
+          fullDate: d.date,
+          value: d.rate,
+          count: d.count,
+          isToday: false,
+        }))
+      case 'thisMonth':
+        return monthlyData.map((d, index) => ({
+          name: index % 5 === 0 ? d.date.split('-')[2] : '',
+          fullDate: d.date,
+          value: d.rate,
+          count: d.count,
+          isToday: d.isToday,
+        }))
+    }
+  }
+
+  const chartData = getChartData()
+
+  const getDateRangeLabel = () => {
+    switch (dateRange) {
+      case 'last7Days':
+        return t.last7Days
+      case 'lastWeek':
+        return t.lastWeek
+      case 'thisMonth':
+        return t.thisMonth
+    }
+  }
+
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: { fullDate: string; value: number; count: number } }> }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload
+      return (
+        <div className="bg-popover border border-border rounded-lg px-3 py-2 shadow-lg">
+          <p className="text-xs text-muted-foreground">{data.fullDate}</p>
+          <p className="text-sm font-semibold">{data.value}% {t.completionRate}</p>
+          <p className="text-xs text-muted-foreground">{data.count} {t.done}</p>
+        </div>
+      )
+    }
+    return null
+  }
 
   return (
     <main className="max-w-lg mx-auto px-4 pt-6 pb-24">
@@ -97,42 +164,95 @@ export function StatsContent({
       </div>
 
       {/* Weekly Chart */}
-      <Card className="mb-6 border-0 shadow-sm">
+      <Card className="mb-6 border-0 shadow-md bg-card/80 backdrop-blur">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">{t.last7Days}</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">{t.completionRate}</CardTitle>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 gap-1 text-xs">
+                  {getDateRangeLabel()}
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setDateRange('last7Days')}>
+                  {t.last7Days}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setDateRange('lastWeek')}>
+                  {t.lastWeek}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setDateRange('thisMonth')}>
+                  {t.thisMonth}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="h-48 w-full">
+          <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <BarChart 
+                data={chartData} 
+                margin={{ top: 10, right: 5, left: -15, bottom: 5 }}
+              >
+                <CartesianGrid 
+                  strokeDasharray="3 3" 
+                  vertical={false} 
+                  stroke="hsl(var(--border))"
+                  opacity={0.5}
+                />
                 <XAxis 
                   dataKey="name" 
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                  tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                  dy={5}
                 />
                 <YAxis 
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                  tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
                   domain={[0, 100]}
-                  ticks={[0, 50, 100]}
+                  ticks={[0, 25, 50, 75, 100]}
                   tickFormatter={(value) => `${value}%`}
+                  width={40}
                 />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }} />
                 <Bar 
                   dataKey="value" 
                   radius={[6, 6, 0, 0]}
-                  maxBarSize={40}
+                  maxBarSize={dateRange === 'thisMonth' ? 12 : 32}
                 >
                   {chartData.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
-                      fill={entry.isToday ? 'hsl(var(--primary))' : 'hsl(var(--muted))'}
+                      fill={entry.isToday ? 'hsl(var(--primary))' : entry.value > 0 ? 'hsl(var(--primary)/0.6)' : 'hsl(var(--muted))'}
                     />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+          </div>
+          <div className="flex items-center justify-center gap-4 mt-3 pt-3 border-t border-border">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-sm bg-primary" />
+              <span className="text-xs text-muted-foreground">
+                {language === 'es' ? 'Hoy' : 'Today'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-sm bg-primary/60" />
+              <span className="text-xs text-muted-foreground">
+                {language === 'es' ? 'Con actividad' : 'With activity'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-sm bg-muted" />
+              <span className="text-xs text-muted-foreground">
+                {language === 'es' ? 'Sin actividad' : 'No activity'}
+              </span>
+            </div>
           </div>
         </CardContent>
       </Card>

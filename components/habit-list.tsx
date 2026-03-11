@@ -2,13 +2,21 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { HabitIcon } from '@/components/habit-icon'
 import { useLanguage } from '@/components/language-provider'
 import { getColorClass, getColorRingClass, formatDateForDB } from '@/lib/habits'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import { Check, Flame } from 'lucide-react'
+import { Check, Flame, MoreHorizontal, Pencil } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
 import type { HabitWithLogs } from '@/lib/types'
 
 interface HabitListProps {
@@ -83,59 +91,84 @@ function HabitCard({ habit }: { habit: HabitWithLogs }) {
   }
 
   return (
-    <button
-      onClick={toggleHabit}
-      disabled={isPending}
+    <div
       className={cn(
-        'w-full flex items-center gap-4 p-4 rounded-2xl transition-all active:scale-[0.98]',
+        'relative w-full flex items-center gap-4 p-4 rounded-2xl transition-all',
         'bg-card border border-border/50 shadow-sm',
         isCompleted && 'ring-2',
         isCompleted && getColorRingClass(habit.color),
         isPending && 'opacity-70'
       )}
     >
-      <div
-        className={cn(
-          'w-12 h-12 rounded-xl flex items-center justify-center transition-colors',
-          isCompleted 
-            ? cn(getColorClass(habit.color), 'text-white') 
-            : 'bg-secondary'
-        )}
+      <button
+        onClick={toggleHabit}
+        disabled={isPending}
+        className="flex-1 flex items-center gap-4 active:scale-[0.98] transition-transform"
       >
-        {isCompleted ? (
-          <Check className="h-6 w-6" />
-        ) : (
-          <HabitIcon icon={habit.icon} className="h-6 w-6 text-muted-foreground" />
-        )}
-      </div>
+        <div
+          className={cn(
+            'w-12 h-12 rounded-xl flex items-center justify-center transition-colors',
+            isCompleted 
+              ? cn(getColorClass(habit.color), 'text-white') 
+              : 'bg-secondary'
+          )}
+        >
+          {isCompleted ? (
+            <Check className="h-6 w-6" />
+          ) : (
+            <HabitIcon icon={habit.icon} className="h-6 w-6 text-muted-foreground" />
+          )}
+        </div>
 
-      <div className="flex-1 text-left">
-        <h3 className={cn(
-          'font-medium',
-          isCompleted && 'text-muted-foreground line-through'
-        )}>
-          {habit.name}
-        </h3>
-        {habit.streak > 0 && (
-          <div className="flex items-center gap-1 mt-1">
-            <Flame className="h-3.5 w-3.5 text-orange-500" />
-            <span className="text-xs text-muted-foreground">
-              {habit.streak} {t.dayStreak}
-            </span>
-          </div>
-        )}
-      </div>
+        <div className="flex-1 text-left">
+          <h3 className={cn(
+            'font-medium',
+            isCompleted && 'text-muted-foreground line-through'
+          )}>
+            {habit.name}
+          </h3>
+          {habit.streak > 0 && (
+            <div className="flex items-center gap-1 mt-1">
+              <Flame className="h-3.5 w-3.5 text-orange-500" />
+              <span className="text-xs text-muted-foreground">
+                {habit.streak} {t.dayStreak}
+              </span>
+            </div>
+          )}
+        </div>
 
-      <div
-        className={cn(
-          'w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors',
-          isCompleted
-            ? cn(getColorClass(habit.color), 'border-transparent')
-            : 'border-border'
-        )}
-      >
-        {isCompleted && <Check className="h-4 w-4 text-white" />}
-      </div>
-    </button>
+        <div
+          className={cn(
+            'w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors',
+            isCompleted
+              ? cn(getColorClass(habit.color), 'border-transparent')
+              : 'border-border'
+          )}
+        >
+          {isCompleted && <Check className="h-4 w-4 text-white" />}
+        </div>
+      </button>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 shrink-0"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+            <span className="sr-only">{t.editHabit}</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem asChild>
+            <Link href={`/dashboard/edit-habit/${habit.id}`} className="flex items-center gap-2">
+              <Pencil className="h-4 w-4" />
+              {t.editHabit}
+            </Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   )
 }

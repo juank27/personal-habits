@@ -47,6 +47,25 @@ interface Translations {
   habitPerformance: string
   dayStreakLabel: string
   last30d: string
+  lastWeek: string
+  thisMonth: string
+  dateRange: string
+  completionRate: string
+  
+  // Edit Habit
+  editHabit: string
+  saveChanges: string
+  saving: string
+  habitUpdated: string
+  failedToUpdate: string
+  deleteHabit: string
+  deleting: string
+  habitDeleted: string
+  failedToDelete: string
+  confirmDelete: string
+  confirmDeleteMessage: string
+  cancel: string
+  delete: string
   
   // Profile
   manageAccount: string
@@ -111,6 +130,25 @@ const translations: Record<Language, Translations> = {
     habitPerformance: 'Habit Performance',
     dayStreakLabel: 'day streak',
     last30d: 'last 30d',
+    lastWeek: 'Last Week',
+    thisMonth: 'This Month',
+    dateRange: 'Date Range',
+    completionRate: 'Completion Rate',
+    
+    // Edit Habit
+    editHabit: 'Edit Habit',
+    saveChanges: 'Save Changes',
+    saving: 'Saving...',
+    habitUpdated: 'Habit updated!',
+    failedToUpdate: 'Failed to update habit',
+    deleteHabit: 'Delete Habit',
+    deleting: 'Deleting...',
+    habitDeleted: 'Habit deleted!',
+    failedToDelete: 'Failed to delete habit',
+    confirmDelete: 'Delete Habit?',
+    confirmDeleteMessage: 'This action cannot be undone. All your progress for this habit will be lost.',
+    cancel: 'Cancel',
+    delete: 'Delete',
     
     // Profile
     manageAccount: 'Manage your account settings',
@@ -173,6 +211,25 @@ const translations: Record<Language, Translations> = {
     habitPerformance: 'Rendimiento por Hábito',
     dayStreakLabel: 'días de racha',
     last30d: 'últimos 30d',
+    lastWeek: 'Semana Pasada',
+    thisMonth: 'Este Mes',
+    dateRange: 'Rango de Fechas',
+    completionRate: 'Tasa de Cumplimiento',
+    
+    // Edit Habit
+    editHabit: 'Editar Hábito',
+    saveChanges: 'Guardar Cambios',
+    saving: 'Guardando...',
+    habitUpdated: '¡Hábito actualizado!',
+    failedToUpdate: 'Error al actualizar el hábito',
+    deleteHabit: 'Eliminar Hábito',
+    deleting: 'Eliminando...',
+    habitDeleted: '¡Hábito eliminado!',
+    failedToDelete: 'Error al eliminar el hábito',
+    confirmDelete: '¿Eliminar Hábito?',
+    confirmDeleteMessage: 'Esta acción no se puede deshacer. Todo tu progreso de este hábito se perderá.',
+    cancel: 'Cancelar',
+    delete: 'Eliminar',
     
     // Profile
     manageAccount: 'Administra tu cuenta',
