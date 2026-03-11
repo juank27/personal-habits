@@ -25,25 +25,39 @@ interface HabitListProps {
 
 export function HabitList({ habits }: HabitListProps) {
   const { t } = useLanguage()
-  const completedCount = habits.filter((h) => h.isCompletedToday).length
-  
+  const [completedIds, setCompletedIds] = useState<Set<string>>(
+    () => new Set(habits.filter((h) => h.isCompletedToday).map((h) => h.id))
+  )
+
+  function onToggle(habitId: string, completed: boolean) {
+    setCompletedIds((prev) => {
+      const next = new Set(prev)
+      if (completed) {
+        next.add(habitId)
+      } else {
+        next.delete(habitId)
+      }
+      return next
+    })
+  }
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">{t.todayHabits}</h2>
         <span className="text-sm text-muted-foreground">
-          {completedCount}/{habits.length} {t.done}
+          {completedIds.size}/{habits.length} {t.done}
         </span>
       </div>
       
       {habits.map((habit) => (
-        <HabitCard key={habit.id} habit={habit} />
+        <HabitCard key={habit.id} habit={habit} onToggle={onToggle} />
       ))}
     </div>
   )
 }
 
-function HabitCard({ habit }: { habit: HabitWithLogs }) {
+function HabitCard({ habit, onToggle }: { habit: HabitWithLogs; onToggle: (id: string, completed: boolean) => void }) {
   const [isCompleted, setIsCompleted] = useState(habit.isCompletedToday)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
@@ -53,6 +67,7 @@ function HabitCard({ habit }: { habit: HabitWithLogs }) {
   async function toggleHabit() {
     const newState = !isCompleted
     setIsCompleted(newState)
+    onToggle(habit.id, newState)
     const today = formatDateForDB(new Date())
 
     startTransition(async () => {
@@ -80,8 +95,8 @@ function HabitCard({ habit }: { habit: HabitWithLogs }) {
         })
 
         if (error) {
-          console.log('[v0] Insert error:', error)
           setIsCompleted(false)
+          onToggle(habit.id, false)
           toast.error(language === 'es' ? 'Error al registrar' : 'Failed to log habit')
           return
         }
@@ -96,8 +111,8 @@ function HabitCard({ habit }: { habit: HabitWithLogs }) {
           .eq('completed_at', today)
 
         if (error) {
-          console.log('[v0] Delete error:', error)
           setIsCompleted(true)
+          onToggle(habit.id, true)
           toast.error(language === 'es' ? 'Error al eliminar' : 'Failed to remove log')
           return
         }
