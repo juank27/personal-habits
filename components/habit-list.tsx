@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -10,6 +10,7 @@ import { getColorClass, getColorRingClass, formatDateForDB } from '@/lib/habits'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { Check, Flame, MoreHorizontal, Pencil } from 'lucide-react'
+import { isSameDay } from 'date-fns'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,13 +22,19 @@ import type { HabitWithLogs } from '@/lib/types'
 
 interface HabitListProps {
   habits: HabitWithLogs[]
+  selectedDate?: Date
 }
 
-export function HabitList({ habits }: HabitListProps) {
+export function HabitList({ habits, selectedDate }: HabitListProps) {
   const { t } = useLanguage()
   const [completedIds, setCompletedIds] = useState<Set<string>>(
     () => new Set(habits.filter((h) => h.isCompletedToday).map((h) => h.id))
   )
+
+  // Update completed IDs when habits or selected date changes
+  useEffect(() => {
+    setCompletedIds(new Set(habits.filter((h) => h.isCompletedToday).map((h) => h.id)))
+  }, [habits, selectedDate])
 
   function onToggle(habitId: string, completed: boolean) {
     setCompletedIds((prev) => {
@@ -51,33 +58,34 @@ export function HabitList({ habits }: HabitListProps) {
       </div>
       
       {habits.map((habit) => (
-        <HabitCard key={habit.id} habit={habit} onToggle={onToggle} />
+        <HabitCard key={habit.id} habit={habit} onToggle={onToggle} selectedDate={selectedDate} />
       ))}
     </div>
   )
 }
 
-function HabitCard({ habit, onToggle }: { habit: HabitWithLogs; onToggle: (id: string, completed: boolean) => void }) {
+function HabitCard({ habit, onToggle, selectedDate }: { habit: HabitWithLogs; onToggle: (id: string, completed: boolean) => void; selectedDate?: Date }) {
   const [isCompleted, setIsCompleted] = useState(habit.isCompletedToday)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const supabase = createClient()
   const { t, language } = useLanguage()
+  
+  const targetDate = selectedDate ? formatDateForDB(selectedDate) : formatDateForDB(new Date())
 
   async function toggleHabit() {
     const newState = !isCompleted
     setIsCompleted(newState)
     onToggle(habit.id, newState)
-    const today = formatDateForDB(new Date())
 
     startTransition(async () => {
       if (newState) {
-        // Check if log already exists for today
+        // Check if log already exists for the target date
         const { data: existingLog } = await supabase
           .from('habit_logs')
           .select('id')
           .eq('habit_id', habit.id)
-          .eq('completed_at', today)
+          .eq('completed_at', targetDate)
           .maybeSingle()
 
         if (existingLog) {
@@ -91,7 +99,7 @@ function HabitCard({ habit, onToggle }: { habit: HabitWithLogs; onToggle: (id: s
         const { error } = await supabase.from('habit_logs').insert({
           habit_id: habit.id,
           user_id: habit.user_id,
-          completed_at: today,
+          completed_at: targetDate,
         })
 
         if (error) {
@@ -103,12 +111,12 @@ function HabitCard({ habit, onToggle }: { habit: HabitWithLogs; onToggle: (id: s
 
         toast.success(language === 'es' ? `${habit.name} completado!` : `${habit.name} completed!`)
       } else {
-        // Remove today's log
+        // Remove log for the target date
         const { error } = await supabase
           .from('habit_logs')
           .delete()
           .eq('habit_id', habit.id)
-          .eq('completed_at', today)
+          .eq('completed_at', targetDate)
 
         if (error) {
           setIsCompleted(true)
