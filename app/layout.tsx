@@ -26,10 +26,24 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "MindSai",
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
+    startupImage: [
+      {
+        url: "/icons/icon-512x512.png",
+        media:
+          "(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)",
+      },
+    ],
   },
   formatDetection: {
     telephone: false,
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: "cover",
   },
 };
 
@@ -57,8 +71,17 @@ export default function RootLayout({
     >
       <head>
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/icons/icon-192x192.png"
+        />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="mobile-web-app-capable" content="yes" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+        <meta name="apple-mobile-web-app-title" content="Habits" />
       </head>
       <body className="font-sans antialiased min-h-screen bg-background">
         <ThemeProvider
