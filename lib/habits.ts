@@ -1,4 +1,4 @@
-import { format, subDays, isSameDay, parseISO } from 'date-fns'
+import { format, subDays, isSameDay, parse } from 'date-fns'
 import type { Habit, HabitLog, HabitWithLogs } from './types'
 
 export function calculateStreak(logs: HabitLog[]): number {
@@ -13,7 +13,7 @@ export function calculateStreak(logs: HabitLog[]): number {
   currentDate.setHours(0, 0, 0, 0)
 
   // Check if completed today
-  const latestLog = parseISO(sortedLogs[0].completed_at)
+  const latestLog = parse(sortedLogs[0].completed_at, 'yyyy-MM-dd', new Date())
   if (!isSameDay(latestLog, currentDate)) {
     // Check if completed yesterday (streak still valid)
     const yesterday = subDays(currentDate, 1)
@@ -25,7 +25,7 @@ export function calculateStreak(logs: HabitLog[]): number {
 
   // Count consecutive days
   for (const log of sortedLogs) {
-    const logDate = parseISO(log.completed_at)
+    const logDate = parse(log.completed_at, 'yyyy-MM-dd', new Date())
     if (isSameDay(logDate, currentDate)) {
       streak++
       currentDate = subDays(currentDate, 1)
@@ -38,7 +38,7 @@ export function calculateStreak(logs: HabitLog[]): number {
 }
 
 export function isCompletedOnDate(logs: HabitLog[], date: Date): boolean {
-  return logs.some((log) => isSameDay(parseISO(log.completed_at), date))
+  return logs.some((log) => isSameDay(parse(log.completed_at, 'yyyy-MM-dd', new Date()), date))
 }
 
 export function processHabitsWithLogs(

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { isSameDay } from 'date-fns'
+import { isSameDay, parse } from 'date-fns'
 import { WeekCalendar } from '@/components/week-calendar'
 import { HabitList } from '@/components/habit-list'
 import type { HabitWithLogs } from '@/lib/types'
@@ -20,9 +20,9 @@ export function DashboardContent({ habits, weekDays }: DashboardContentProps) {
 
   const habitsWithLogs = habits.map((habit) => ({
     ...habit,
-    isCompletedToday: isSameDay(selectedDate, new Date())
-      ? habit.isCompletedToday
-      : habit.logs.some((log) => isSameDay(new Date(log.completed_at), selectedDate)),
+    isCompletedToday: habit.logs.some((log) =>
+      isSameDay(parse(log.completed_at, 'yyyy-MM-dd', new Date()), selectedDate)
+    ),
   }))
 
   return (
