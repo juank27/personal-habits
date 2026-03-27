@@ -17,32 +17,41 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
-import { Sparkles, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
+export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setIsLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      toast.error(error.message);
-      setIsLoading(false);
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
       return;
     }
 
-    toast.success("Welcome back!");
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const { error } = await supabase.auth.updateUser({ password });
+
+    setIsLoading(false);
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    toast.success("Password updated successfully!");
     router.push("/dashboard");
     router.refresh();
   }
@@ -51,11 +60,11 @@ export default function LoginPage() {
     <main className="min-h-screen flex flex-col bg-gradient-to-b from-background via-background to-secondary/30">
       <div className="p-4">
         <Link
-          href="/"
+          href="/auth/login"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to home
+          Back to login
         </Link>
       </div>
 
@@ -63,7 +72,6 @@ export default function LoginPage() {
         <Card className="w-full max-w-md border-0 shadow-xl shadow-primary/5">
           <CardHeader className="text-center space-y-4">
             <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              {/* <Sparkles className="h-7 w-7 text-primary-foreground" /> */}
               <Image
                 src="/mindSai-06.png"
                 alt="HabitFlow Logo"
@@ -72,9 +80,9 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
+              <CardTitle className="text-2xl font-bold">Set new password</CardTitle>
               <CardDescription className="mt-2">
-                Sign in to continue building your habits
+                Choose a strong password for your account.
               </CardDescription>
             </div>
           </CardHeader>
@@ -83,36 +91,28 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <FieldGroup>
                 <Field>
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="password">New password</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="password"
+                    type="password"
+                    placeholder="Min. 6 characters"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
-                    autoComplete="email"
+                    autoComplete="new-password"
                   />
                 </Field>
 
                 <Field>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <Link
-                      href="/auth/forgot-password"
-                      className="text-xs text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
+                  <Label htmlFor="confirmPassword">Confirm password</Label>
                   <Input
-                    id="password"
+                    id="confirmPassword"
                     type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Repeat your password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    autoComplete="current-password"
+                    autoComplete="new-password"
                   />
                 </Field>
               </FieldGroup>
@@ -125,23 +125,13 @@ export default function LoginPage() {
                 {isLoading ? (
                   <>
                     <Spinner className="mr-2" />
-                    Signing in...
+                    Updating...
                   </>
                 ) : (
-                  "Sign in"
+                  "Update password"
                 )}
               </Button>
             </form>
-
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/auth/sign-up"
-                className="font-medium text-primary hover:text-primary/80 transition-colors"
-              >
-                Sign up
-              </Link>
-            </p>
           </CardContent>
         </Card>
       </div>
