@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns'
+import { format, subDays } from 'date-fns'
 import { processHabitsWithLogs } from '@/lib/habits'
 import { DashboardHeader } from '@/components/dashboard-header'
 import { DashboardContent } from '@/components/dashboard-content'
@@ -25,18 +25,16 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: true })
 
-  // Fetch logs for the current week
+  // Fetch logs for the last 90 days to support carousel navigation
   const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const weekStart = startOfWeek(today, { weekStartsOn: 1 })
-  const weekEnd = endOfWeek(today, { weekStartsOn: 1 })
+  const ninetyDaysAgo = subDays(today, 90)
 
   const { data: logs } = await supabase
     .from('habit_logs')
     .select('*')
     .eq('user_id', user.id)
-    .gte('completed_at', format(weekStart, 'yyyy-MM-dd'))
-    .lte('completed_at', format(weekEnd, 'yyyy-MM-dd'))
+    .gte('completed_at', format(ninetyDaysAgo, 'yyyy-MM-dd'))
+    .lte('completed_at', format(today, 'yyyy-MM-dd'))
 
   // Fetch profile for display name
   const { data: profile } = await supabase
@@ -50,20 +48,16 @@ export default async function DashboardPage() {
     (logs as HabitLog[]) || []
   )
 
-  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd })
   const displayName = profile?.display_name || user.email?.split('@')[0] || 'there'
 
   return (
     <main className="max-w-lg mx-auto px-4 pt-6">
       <DashboardHeader displayName={displayName} />
-      
+
       {habitsWithLogs.length === 0 ? (
         <EmptyHabits />
       ) : (
-        <DashboardContent 
-          habits={habitsWithLogs}
-          weekDays={weekDays}
-        />
+        <DashboardContent habits={habitsWithLogs} />
       )}
     </main>
   )

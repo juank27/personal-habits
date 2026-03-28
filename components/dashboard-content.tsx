@@ -8,10 +8,9 @@ import type { HabitWithLogs } from '@/lib/types'
 
 interface DashboardContentProps {
   habits: HabitWithLogs[]
-  weekDays: Date[]
 }
 
-export function DashboardContent({ habits, weekDays }: DashboardContentProps) {
+export function DashboardContent({ habits }: DashboardContentProps) {
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -27,8 +26,7 @@ export function DashboardContent({ habits, weekDays }: DashboardContentProps) {
 
   return (
     <>
-      <WeekCalendar 
-        days={weekDays} 
+      <WeekCalendar
         habits={habitsWithLogs}
         selectedDate={selectedDate}
         onDateChange={setSelectedDate}
