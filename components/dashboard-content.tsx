@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { isSameDay, parse } from 'date-fns'
 import { WeekCalendar } from '@/components/week-calendar'
 import { HabitList } from '@/components/habit-list'
+import { NotificationBanner } from '@/components/notification-banner'
+import { isScheduledForDate } from '@/lib/habits'
 import type { HabitWithLogs } from '@/lib/types'
 
 interface DashboardContentProps {
@@ -17,21 +19,25 @@ export function DashboardContent({ habits }: DashboardContentProps) {
     return today
   })
 
-  const habitsWithLogs = habits.map((habit) => ({
-    ...habit,
-    isCompletedToday: habit.logs.some((log) =>
-      isSameDay(parse(log.completed_at, 'yyyy-MM-dd', new Date()), selectedDate)
-    ),
-  }))
+  // Recalculate completion for selected date and filter by frequency
+  const habitsForDate = habits
+    .filter((habit) => isScheduledForDate(habit, selectedDate))
+    .map((habit) => ({
+      ...habit,
+      isCompletedToday: habit.logs.some((log) =>
+        isSameDay(parse(log.completed_at, 'yyyy-MM-dd', new Date()), selectedDate)
+      ),
+    }))
 
   return (
     <>
+      <NotificationBanner habits={habits} />
       <WeekCalendar
-        habits={habitsWithLogs}
+        habits={habitsForDate}
         selectedDate={selectedDate}
         onDateChange={setSelectedDate}
       />
-      <HabitList habits={habitsWithLogs} selectedDate={selectedDate} />
+      <HabitList habits={habitsForDate} selectedDate={selectedDate} />
     </>
   )
 }

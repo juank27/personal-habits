@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect } from 'react'
 import { isToday, isSameDay, eachDayOfInterval, subDays, format } from 'date-fns'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { isCompletedOnDate } from '@/lib/habits'
 import { useLanguage } from '@/components/language-provider'
@@ -36,7 +36,6 @@ export function WeekCalendar({ habits, onDateChange, selectedDate: externalSelec
   const dragDistance = useRef(0)
   const dragging = useRef(false)
 
-  // Scroll to today on mount
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
@@ -50,7 +49,6 @@ export function WeekCalendar({ habits, onDateChange, selectedDate: externalSelec
     const maxScroll = el.scrollWidth - el.clientWidth
     setAtEnd(el.scrollLeft >= maxScroll - 2)
 
-    // Update month label based on center of visible window
     const dayWidth = el.clientWidth / 7
     const centerIdx = Math.round((el.scrollLeft + el.clientWidth / 2) / dayWidth)
     const centerDay = allDays[Math.min(Math.max(centerIdx, 0), allDays.length - 1)]
@@ -129,23 +127,27 @@ export function WeekCalendar({ habits, onDateChange, selectedDate: externalSelec
   const monthLabel = format(visibleMonth, language === 'es' ? 'MMMM yyyy' : 'MMMM yyyy')
 
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-medium text-muted-foreground capitalize">
-          {monthLabel}
-        </span>
+    <div className="mb-6 animate-fade-in-up" style={{ animationDelay: '80ms' }}>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3 px-1">
+        <div className="flex items-center gap-2">
+          <CalendarDays className="h-4 w-4 text-primary" />
+          <span className="text-sm font-semibold capitalize text-foreground">
+            {monthLabel}
+          </span>
+        </div>
         <div className="flex items-center gap-1">
           {!atEnd && (
             <button
               onClick={scrollToToday}
-              className="text-xs font-medium text-primary hover:text-primary/80 px-2 py-1 rounded-lg hover:bg-primary/10 transition-colors mr-1"
+              className="text-xs font-semibold text-primary hover:text-primary/80 px-3 py-1 rounded-full bg-primary/10 hover:bg-primary/20 transition-all duration-200 mr-1"
             >
               {language === 'es' ? 'Hoy' : 'Today'}
             </button>
           )}
           <button
             onClick={handlePrev}
-            className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
+            className="p-1.5 rounded-xl hover:bg-secondary transition-all duration-200 cursor-pointer"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -153,8 +155,8 @@ export function WeekCalendar({ habits, onDateChange, selectedDate: externalSelec
             onClick={handleNext}
             disabled={atEnd}
             className={cn(
-              'p-1.5 rounded-lg transition-colors',
-              atEnd ? 'opacity-30 cursor-not-allowed' : 'hover:bg-secondary'
+              'p-1.5 rounded-xl transition-all duration-200',
+              atEnd ? 'opacity-25 cursor-not-allowed' : 'hover:bg-secondary cursor-pointer'
             )}
           >
             <ChevronRight className="h-4 w-4" />
@@ -162,9 +164,10 @@ export function WeekCalendar({ habits, onDateChange, selectedDate: externalSelec
         </div>
       </div>
 
+      {/* Calendar strip */}
       <div
         ref={containerRef}
-        className="flex overflow-x-auto cursor-grab select-none"
+        className="flex overflow-x-auto cursor-grab select-none -mx-1 px-1"
         style={{ scrollbarWidth: 'none' }}
         onScroll={handleScroll}
         onMouseDown={onMouseDown}
@@ -178,6 +181,7 @@ export function WeekCalendar({ habits, onDateChange, selectedDate: externalSelec
           const completion = getDayCompletion(day)
           const isPast = day < today && !isCurrentDay
           const dayOfWeek = day.getDay()
+          const isFullyDone = completion === 1 && isPast
 
           return (
             <button
@@ -186,41 +190,51 @@ export function WeekCalendar({ habits, onDateChange, selectedDate: externalSelec
               draggable={false}
               style={{ minWidth: 'calc(100% / 7)' }}
               className={cn(
-                'flex flex-col items-center py-3 px-1 rounded-2xl transition-colors',
-                'hover:bg-secondary',
-                isCurrentDay && 'bg-primary/10',
-                isSelected && !isCurrentDay && 'bg-secondary'
+                'flex flex-col items-center py-2 px-0.5 rounded-2xl transition-all duration-200 cursor-pointer',
+                isSelected && !isCurrentDay && 'bg-secondary',
+                !isSelected && !isCurrentDay && 'hover:bg-secondary/60',
+                isCurrentDay && 'bg-primary/8'
               )}
             >
               <span
                 className={cn(
-                  'text-xs font-medium mb-2',
+                  'text-[10px] font-semibold mb-1.5 uppercase tracking-wide',
                   isCurrentDay ? 'text-primary' : 'text-muted-foreground'
                 )}
               >
                 {dayNames[dayOfWeek]}
               </span>
-              <div
-                className={cn(
-                  'w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm relative transition-colors',
-                  isCurrentDay
-                    ? 'bg-primary text-primary-foreground'
-                    : isSelected
-                    ? 'bg-primary/30 text-foreground'
-                    : isPast && completion === 1
-                    ? 'bg-success/20 text-success'
-                    : 'text-foreground'
-                )}
-              >
-                {day.getDate()}
+
+              <div className="relative flex items-center justify-center">
+                {/* Completion ring (conic gradient) */}
                 {!isCurrentDay && completion > 0 && completion < 1 && (
                   <div
-                    className="absolute inset-0 rounded-full opacity-30"
+                    className="absolute inset-0 rounded-full"
                     style={{
-                      background: `conic-gradient(var(--primary) ${completion * 360}deg, transparent ${completion * 360}deg)`,
+                      background: `conic-gradient(color-mix(in oklch, var(--primary) 60%, transparent) ${completion * 360}deg, transparent ${completion * 360}deg)`,
+                      padding: '2px',
+                      borderRadius: '50%',
                     }}
                   />
                 )}
+
+                <div
+                  className={cn(
+                    'w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm relative z-10 transition-all duration-200',
+                    isCurrentDay
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30 animate-glow-ring'
+                      : isSelected
+                      ? 'bg-primary/20 text-primary font-bold ring-2 ring-primary/40'
+                      : isFullyDone
+                      ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                      : 'text-foreground'
+                  )}
+                >
+                  {day.getDate()}
+                  {isFullyDone && (
+                    <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-background" />
+                  )}
+                </div>
               </div>
             </button>
           )

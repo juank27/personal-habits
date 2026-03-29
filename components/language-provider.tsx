@@ -87,6 +87,31 @@ interface Translations {
   english: string;
   spanish: string;
 
+  // Frequency
+  frequency: string;
+  daily: string;
+  weekdays: string;
+  weekends: string;
+  custom: string;
+  selectDays: string;
+
+  // Reminders
+  reminder: string;
+  reminderTime: string;
+  enableReminder: string;
+  notificationsBlocked: string;
+  notificationsGranted: string;
+  reminderFor: string;
+
+  // Notes
+  addNote: string;
+  notePlaceholder: string;
+  noteSaved: string;
+
+  // Best streak
+  bestStreak: string;
+  currentStreak: string;
+
   // Common
   days: string;
   loading: string;
@@ -171,6 +196,31 @@ const translations: Record<Language, Translations> = {
     english: "English",
     spanish: "Spanish",
 
+    // Frequency
+    frequency: "Frequency",
+    daily: "Daily",
+    weekdays: "Weekdays",
+    weekends: "Weekends",
+    custom: "Custom",
+    selectDays: "Select days",
+
+    // Reminders
+    reminder: "Reminder",
+    reminderTime: "Reminder time",
+    enableReminder: "Enable reminder",
+    notificationsBlocked: "Notifications blocked. Enable them in browser settings.",
+    notificationsGranted: "Notifications enabled!",
+    reminderFor: "Time to do your habit:",
+
+    // Notes
+    addNote: "Add note...",
+    notePlaceholder: "How did it go? (optional)",
+    noteSaved: "Note saved",
+
+    // Best streak
+    bestStreak: "Best streak",
+    currentStreak: "Current streak",
+
     // Common
     days: "days",
     loading: "Loading...",
@@ -252,6 +302,31 @@ const translations: Record<Language, Translations> = {
     signingOut: "Cerrando sesión...",
     english: "Inglés",
     spanish: "Español",
+
+    // Frequency
+    frequency: "Frecuencia",
+    daily: "Diario",
+    weekdays: "Lun–Vie",
+    weekends: "Fin de semana",
+    custom: "Personalizado",
+    selectDays: "Selecciona días",
+
+    // Reminders
+    reminder: "Recordatorio",
+    reminderTime: "Hora del recordatorio",
+    enableReminder: "Activar recordatorio",
+    notificationsBlocked: "Notificaciones bloqueadas. Actívalas en la configuración del navegador.",
+    notificationsGranted: "¡Notificaciones activadas!",
+    reminderFor: "Hora de hacer tu hábito:",
+
+    // Notes
+    addNote: "Agregar nota...",
+    notePlaceholder: "¿Cómo te fue? (opcional)",
+    noteSaved: "Nota guardada",
+
+    // Best streak
+    bestStreak: "Mejor racha",
+    currentStreak: "Racha actual",
 
     // Common
     days: "días",
