@@ -22,6 +22,11 @@ export const metadata: Metadata = {
     "Track your daily habits, build streaks, and achieve your goals with MindSai.",
   generator: "Next.js",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/mindSai-06.png",
+    shortcut: "/mindSai-06.png",
+    apple: "/mindSai-06.png",
+  },
   themeColor: "#09090b",
   appleWebApp: {
     capable: true,
