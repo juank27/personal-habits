@@ -110,8 +110,10 @@ export default async function StatsPage() {
   const habitStats = habitsData.map((habit) => {
     const habitLogs = last30DaysLogs.filter((log) => log.habit_id === habit.id)
     const streak = calculateStreak(logsData.filter((log) => log.habit_id === habit.id))
-    const completionRate = Math.min(Math.round((habitLogs.length / 30) * 100), 100)
-    return { ...habit, streak, completionRate, totalLogs: habitLogs.length }
+    // Deduplicate by day to avoid inflated rates from multiple logs per day
+    const uniqueDaysCompleted = new Set(habitLogs.map((l) => l.completed_at)).size
+    const completionRate = Math.min(Math.round((uniqueDaysCompleted / 30) * 100), 100)
+    return { ...habit, streak, completionRate, totalLogs: uniqueDaysCompleted }
   }).sort((a, b) => b.streak - a.streak)
 
   // Overall stats
@@ -130,6 +132,7 @@ export default async function StatsPage() {
       lastWeekData={lastWeekData}
       monthlyData={monthlyData}
       habitStats={habitStats}
+      logs={logsData.map((l) => ({ habit_id: l.habit_id, completed_at: l.completed_at }))}
       avgCompletionRate={Math.min(avgCompletionRate, 100)}
       bestStreak={bestStreak}
       currentWeekCompletion={currentWeekCompletion}

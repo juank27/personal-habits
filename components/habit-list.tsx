@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, useEffect } from 'react'
+import { useState, useTransition, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -67,6 +67,15 @@ export function HabitList({ habits, selectedDate }: HabitListProps) {
 function HabitCard({ habit, onToggle, selectedDate }: { habit: HabitWithLogs; onToggle: (id: string, completed: boolean) => void; selectedDate?: Date }) {
   const [isCompleted, setIsCompleted] = useState(habit.isCompletedToday)
   const [isPending, startTransition] = useTransition()
+  const prevCompleted = useRef(habit.isCompletedToday)
+
+  // Sync local state when the parent recalculates completion (e.g. date change)
+  useEffect(() => {
+    if (prevCompleted.current !== habit.isCompletedToday) {
+      prevCompleted.current = habit.isCompletedToday
+      setIsCompleted(habit.isCompletedToday)
+    }
+  }, [habit.isCompletedToday])
   const router = useRouter()
   const supabase = createClient()
   const { t, language } = useLanguage()
