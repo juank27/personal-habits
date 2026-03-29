@@ -17,8 +17,11 @@ export function BottomNav() {
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-lg border-t border-border/50 safe-area-inset-bottom z-50">
-      <div className="flex items-center justify-around max-w-lg mx-auto py-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-inset-bottom">
+      {/* Blur backdrop */}
+      <div className="absolute inset-0 bg-card/75 backdrop-blur-xl border-t border-border/40" />
+
+      <div className="relative flex items-center justify-around max-w-lg mx-auto px-2 py-1">
         {navItems.map((item) => {
           const isActive = pathname === item.href
           return (
@@ -26,14 +29,31 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex flex-col items-center gap-1 px-6 py-2 rounded-xl transition-colors',
+                'relative flex flex-col items-center gap-0.5 px-5 py-2.5 rounded-2xl transition-all duration-200 cursor-pointer',
                 isActive
                   ? 'text-primary'
                   : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              <item.icon className={cn('h-6 w-6', isActive && 'stroke-[2.5]')} />
-              <span className="text-xs font-medium">{item.label}</span>
+              {/* Active pill background */}
+              {isActive && (
+                <span className="absolute inset-0 rounded-2xl bg-primary/10 animate-scale-pop" />
+              )}
+
+              <item.icon
+                className={cn(
+                  'h-5 w-5 relative z-10 transition-all duration-200',
+                  isActive ? 'stroke-[2.5] scale-110' : 'stroke-2'
+                )}
+              />
+              <span
+                className={cn(
+                  'text-[10px] font-semibold relative z-10 transition-all duration-200',
+                  isActive ? 'opacity-100' : 'opacity-60'
+                )}
+              >
+                {item.label}
+              </span>
             </Link>
           )
         })}

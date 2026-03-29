@@ -12,8 +12,7 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ displayName }: DashboardHeaderProps) {
   const { t, language } = useLanguage()
   const today = new Date()
-  
-  // Format date based on language
+
   const formattedDate = language === 'es'
     ? today.toLocaleDateString('es-ES', { weekday: 'long', month: 'long', day: 'numeric' })
     : today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
@@ -21,18 +20,24 @@ export function DashboardHeader({ displayName }: DashboardHeaderProps) {
   const greeting = getGreeting(t)
 
   return (
-    <header className="flex items-start justify-between mb-6">
+    <header className="flex items-start justify-between mb-6 animate-fade-in-up">
       <div>
-        <p className="text-muted-foreground text-sm capitalize">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest capitalize mb-1">
           {formattedDate}
         </p>
-        <h1 className="text-2xl font-bold mt-1">
-          {greeting}, {displayName}!
+        <h1 className="text-2xl font-bold leading-tight">
+          {greeting},{' '}
+          <span className="gradient-text">{displayName}</span>!
         </h1>
       </div>
-      <Button size="icon" className="rounded-xl h-10 w-10" asChild>
+
+      <Button
+        size="icon"
+        className="rounded-2xl h-11 w-11 shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-105 active:scale-95 transition-all duration-200"
+        asChild
+      >
         <Link href="/dashboard/new-habit">
-          <Plus className="h-5 w-5" />
+          <Plus className="h-5 w-5" strokeWidth={2.5} />
           <span className="sr-only">{language === 'es' ? 'Agregar hábito' : 'Add new habit'}</span>
         </Link>
       </Button>

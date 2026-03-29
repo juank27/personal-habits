@@ -7,14 +7,32 @@ import {
   Calendar,
   ArrowRight,
   CheckCircle2,
+  Flame,
+  Zap,
 } from "lucide-react";
 import Image from "next/image";
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/30">
+    <main className="min-h-screen bg-background overflow-x-hidden">
+      {/* Ambient background blobs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div
+          className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-20 blur-3xl"
+          style={{ background: 'var(--primary)' }}
+        />
+        <div
+          className="absolute top-1/2 -left-32 w-72 h-72 rounded-full opacity-10 blur-3xl"
+          style={{ background: 'oklch(0.7 0.2 320)' }}
+        />
+        <div
+          className="absolute -bottom-20 right-1/4 w-64 h-64 rounded-full opacity-10 blur-3xl"
+          style={{ background: 'var(--primary)' }}
+        />
+      </div>
+
       {/* Header */}
-      <header className="flex items-center justify-between p-4 md:p-6">
+      <header className="flex items-center justify-between p-4 md:p-6 max-w-7xl mx-auto animate-fade-in-up">
         <div className="flex items-center gap-1">
           <Image
             src="/mindSai-17.png"
@@ -24,34 +42,57 @@ export default function LandingPage() {
           />
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" asChild>
+          <Button variant="ghost" className="rounded-xl cursor-pointer" asChild>
             <Link href="/auth/login">Sign in</Link>
           </Button>
-          <Button asChild>
+          <Button className="rounded-xl shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer" asChild>
             <Link href="/auth/sign-up">Get Started</Link>
           </Button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="px-4 py-16 md:py-24 text-center max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+      <section className="px-4 py-16 md:py-28 text-center max-w-4xl mx-auto">
+        {/* Badge */}
+        <div
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold mb-8 animate-fade-in-up border"
+          style={{
+            background: 'color-mix(in oklch, var(--primary) 10%, transparent)',
+            borderColor: 'color-mix(in oklch, var(--primary) 25%, transparent)',
+            color: 'var(--primary)',
+            animationDelay: '100ms',
+          }}
+        >
           <Sparkles className="h-4 w-4" />
           Build habits that stick
+          <Zap className="h-3.5 w-3.5" />
         </div>
 
-        <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-balance">
+        <h1
+          className="text-4xl md:text-6xl font-bold tracking-tight text-balance mb-6 animate-fade-in-up"
+          style={{ animationDelay: '150ms' }}
+        >
           Track your habits,{" "}
-          <span className="text-primary">transform your life</span>
+          <span className="gradient-text">transform your life</span>
         </h1>
 
-        <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
+        <p
+          className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty leading-relaxed animate-fade-in-up"
+          style={{ animationDelay: '200ms' }}
+        >
           HabitFlow helps you build consistent routines with beautiful tracking,
           streak motivation, and insightful statistics.
         </p>
 
-        <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" className="h-14 px-8 text-base" asChild>
+        <div
+          className="mt-10 flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up"
+          style={{ animationDelay: '250ms' }}
+        >
+          <Button
+            size="lg"
+            className="h-14 px-8 text-base rounded-2xl shadow-xl shadow-primary/30 hover:shadow-primary/50 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+            asChild
+          >
             <Link href="/auth/sign-up">
               Start for free
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -60,36 +101,73 @@ export default function LandingPage() {
           <Button
             size="lg"
             variant="outline"
-            className="h-14 px-8 text-base"
+            className="h-14 px-8 text-base rounded-2xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
             asChild
           >
             <Link href="/auth/login">Sign in</Link>
           </Button>
         </div>
+
+        {/* Social proof row */}
+        <div
+          className="mt-10 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground animate-fade-in-up"
+          style={{ animationDelay: '300ms' }}
+        >
+          <span className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+            Free forever
+          </span>
+          <span className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+            No credit card
+          </span>
+          <span className="flex items-center gap-2">
+            <Flame className="h-4 w-4 text-orange-500 shrink-0" />
+            Streak tracking
+          </span>
+        </div>
       </section>
 
       {/* Features */}
-      <section className="px-4 py-16 md:py-24">
+      <section className="px-4 py-16 md:py-20">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
+          <h2
+            className="text-2xl md:text-3xl font-bold text-center mb-3 animate-fade-in-up"
+            style={{ animationDelay: '100ms' }}
+          >
             Everything you need to build better habits
           </h2>
+          <p
+            className="text-center text-muted-foreground mb-12 animate-fade-in-up"
+            style={{ animationDelay: '150ms' }}
+          >
+            Simple, powerful tools for lasting change.
+          </p>
 
           <div className="grid md:grid-cols-3 gap-6">
             <FeatureCard
               icon={Target}
               title="Daily Tracking"
-              description="Simple one-tap tracking to log your habits. Never miss a day with smart reminders."
+              description="Simple one-tap tracking to log your habits. Build your routine effortlessly every single day."
+              gradient="from-primary/15 to-violet-400/10"
+              iconColor="text-primary"
+              delay={200}
             />
             <FeatureCard
               icon={TrendingUp}
               title="Streak Motivation"
-              description="Build momentum with streaks. Watch your consistency grow day by day."
+              description="Build momentum with streaks. Watch your consistency grow and feel the power of compounding."
+              gradient="from-orange-400/15 to-rose-400/10"
+              iconColor="text-orange-500"
+              delay={250}
             />
             <FeatureCard
               icon={Calendar}
               title="Insightful Stats"
-              description="Visualize your progress with weekly and monthly statistics and completion rates."
+              description="Visualize your progress with beautiful charts. Understand your patterns and celebrate milestones."
+              gradient="from-emerald-400/15 to-teal-400/10"
+              iconColor="text-emerald-500"
+              delay={300}
             />
           </div>
         </div>
@@ -97,49 +175,68 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="px-4 py-16 md:py-24">
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10 rounded-3xl p-8 md:p-12">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              Ready to transform your habits?
-            </h2>
-            <p className="text-muted-foreground mb-8">
-              Join thousands of users who are building better routines with
-              HabitFlow.
-            </p>
+        <div className="max-w-2xl mx-auto">
+          <div
+            className="relative rounded-3xl p-8 md:p-12 text-center overflow-hidden border animate-fade-in-up"
+            style={{
+              background: 'linear-gradient(135deg, color-mix(in oklch, var(--primary) 8%, transparent), color-mix(in oklch, oklch(0.7 0.2 320) 6%, transparent))',
+              borderColor: 'color-mix(in oklch, var(--primary) 20%, transparent)',
+            }}
+          >
+            {/* Decorative glow */}
+            <div
+              className="absolute top-0 right-0 w-48 h-48 rounded-full blur-3xl -z-0 opacity-30"
+              style={{ background: 'var(--primary)', transform: 'translate(40%, -40%)' }}
+            />
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Button size="lg" className="h-12 px-6" asChild>
-                <Link href="/auth/sign-up">Create free account</Link>
+            <div className="relative z-10">
+              <div
+                className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-6 shadow-lg"
+                style={{ background: 'color-mix(in oklch, var(--primary) 15%, transparent)' }}
+              >
+                <Sparkles className="h-7 w-7 text-primary" />
+              </div>
+
+              <h2 className="text-2xl md:text-3xl font-bold mb-3">
+                Ready to transform your habits?
+              </h2>
+              <p className="text-muted-foreground mb-8 leading-relaxed">
+                Join thousands of users building better routines with HabitFlow.
+              </p>
+
+              <Button
+                size="lg"
+                className="h-13 px-8 rounded-2xl shadow-xl shadow-primary/30 hover:shadow-primary/50 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+                asChild
+              >
+                <Link href="/auth/sign-up" className="flex items-center gap-2">
+                  Create free account
+                  <ArrowRight className="h-5 w-5" />
+                </Link>
               </Button>
-            </div>
 
-            <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                Free forever
-              </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                No credit card
-              </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                Unlimited habits
-              </span>
+              <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  Free forever
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  No credit card
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  Unlimited habits
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="px-4 py-8 border-t border-border/50">
+      <footer className="px-4 py-8 border-t border-border/40">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <Sparkles className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-semibold">HabitFlow</span>
-          </div> */}
           <div className="flex items-center gap-1">
             <Image
               src="/mindSai-17.png"
@@ -161,18 +258,27 @@ function FeatureCard({
   icon: Icon,
   title,
   description,
+  gradient,
+  iconColor,
+  delay,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   description: string;
+  gradient: string;
+  iconColor: string;
+  delay: number;
 }) {
   return (
-    <div className="p-6 rounded-2xl bg-card border border-border/50 shadow-sm hover:shadow-md transition-shadow">
-      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-        <Icon className="h-6 w-6 text-primary" />
+    <div
+      className={`group p-6 rounded-3xl bg-gradient-to-br ${gradient} border border-border/50 hover:border-border hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-fade-in-up cursor-default`}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className="w-12 h-12 rounded-2xl bg-background/60 flex items-center justify-center mb-5 shadow-sm group-hover:scale-110 transition-transform duration-300">
+        <Icon className={`h-6 w-6 ${iconColor}`} />
       </div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-muted-foreground text-sm">{description}</p>
+      <h3 className="text-lg font-bold mb-2">{title}</h3>
+      <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
     </div>
   );
 }
