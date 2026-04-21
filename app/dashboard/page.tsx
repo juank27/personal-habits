@@ -48,7 +48,8 @@ export default async function DashboardPage() {
     (logs as HabitLog[]) || []
   )
 
-  const displayName = profile?.display_name || user.email?.split('@')[0] || 'there'
+  const fullName = profile?.display_name || user.email?.split('@')[0] || 'there'
+  const displayName = fullName.split(' ')[0]
 
   return (
     <main className="max-w-lg mx-auto px-4 pt-6">
